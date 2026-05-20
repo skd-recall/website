@@ -1,0 +1,1437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kinai Medical — AI Physiotherapy at Home</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy: #0B1829;
+  --navy2: #0F2040;
+  --navy3: #162B50;
+  --blue: #1565C0;
+  --blue-mid: #1976D2;
+  --blue-light: #42A5F5;
+  --sky: #E3F2FD;
+  --sky2: #BBDEFB;
+  --orange: #E8721C;
+  --orange-light: #FF9A45;
+  --orange-dark: #C05A0E;
+  --white: #FFFFFF;
+  --off-white: #F8FAFC;
+  --gray-100: #F1F5F9;
+  --gray-200: #E2E8F0;
+  --gray-400: #94A3B8;
+  --gray-600: #475569;
+  --gray-800: #1E293B;
+  --font-display: 'Syne', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
+  --font-mono: 'DM Mono', monospace;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.1);
+  --shadow-lg: 0 16px 48px rgba(0,0,0,0.12);
+  --shadow-blue: 0 8px 32px rgba(21,101,192,0.2);
+}
+
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { font-family:var(--font-body); background:var(--white); color:var(--gray-800); overflow-x:hidden; cursor:none; }
+
+/* CURSOR */
+.cur { position:fixed; width:8px; height:8px; background:var(--orange); border-radius:50%; pointer-events:none; z-index:9999; transform:translate(-50%,-50%); transition:width .3s,height .3s,background .3s; }
+.cur-ring { position:fixed; width:32px; height:32px; border:1.5px solid var(--orange); border-radius:50%; pointer-events:none; z-index:9998; transform:translate(-50%,-50%); transition:transform .15s ease-out,width .3s,height .3s,opacity .3s; opacity:.5; }
+
+/* COMING SOON BANNER */
+.coming-soon-bar {
+  position:fixed; top:0; left:0; right:0; z-index:600;
+  background:linear-gradient(90deg, var(--orange-dark), var(--orange), #FF9A45, var(--orange), var(--orange-dark));
+  background-size:200% 100%;
+  animation:bannerShimmer 4s ease infinite;
+  padding:10px 64px;
+  display:flex; align-items:center; justify-content:center; gap:16px;
+}
+.csb-badge {
+  background:rgba(0,0,0,0.25); color:var(--white);
+  font-family:var(--font-mono); font-size:9px; font-weight:500;
+  letter-spacing:2.5px; text-transform:uppercase; padding:3px 10px;
+  border:1px solid rgba(255,255,255,0.3);
+}
+.csb-text {
+  font-family:var(--font-mono); font-size:12px; color:var(--white);
+  letter-spacing:1.5px; font-weight:500;
+  display:flex; align-items:center; gap:10px;
+}
+.csb-dot { width:6px; height:6px; border-radius:50%; background:rgba(255,255,255,0.5); animation:pulse 2s infinite; flex-shrink:0; }
+.csb-back {
+  margin-left:auto; font-family:var(--font-mono); font-size:11px;
+  color:rgba(255,255,255,0.75); text-decoration:none; letter-spacing:1px;
+  display:flex; align-items:center; gap:6px; transition:color .2s;
+  position:absolute; right:64px;
+}
+.csb-back:hover { color:var(--white); }
+@keyframes bannerShimmer { 0%,100%{background-position:0% 50%} 50%{background-position:100% 50%} }
+
+/* SECTION SHARED */
+.section-badge {
+  display:inline-flex; align-items:center; gap:8px;
+  background:var(--sky); color:var(--blue); border:1px solid var(--sky2);
+  padding:6px 14px; font-family:var(--font-mono); font-size:11px;
+  font-weight:500; letter-spacing:1.5px; text-transform:uppercase; margin-bottom:20px;
+}
+.section-badge.orange { background:#FFF3E0; color:var(--orange-dark); border-color:#FFE0B2; }
+.section-badge::before { content:''; width:6px; height:6px; border-radius:50%; background:currentColor; animation:pulse 2s infinite; }
+.section-title { font-family:var(--font-display); font-weight:800; line-height:1.05; color:var(--navy); }
+.section-lead { font-size:17px; color:var(--gray-600); line-height:1.8; font-weight:300; }
+.orange-text { color:var(--orange); }
+.blue-text { color:var(--blue); }
+
+/* DIVIDER */
+.wave-divider { width:100%; overflow:hidden; line-height:0; }
+.wave-divider svg { display:block; width:100%; }
+
+/* REVEAL */
+.reveal { opacity:0; transform:translateY(36px); transition:opacity .8s ease,transform .8s ease; }
+.reveal.up { opacity:1; transform:translateY(0); }
+.reveal-l { opacity:0; transform:translateX(-36px); transition:opacity .8s ease,transform .8s ease; }
+.reveal-l.up { opacity:1; transform:translateX(0); }
+.reveal-r { opacity:0; transform:translateX(36px); transition:opacity .8s ease,transform .8s ease; }
+.reveal-r.up { opacity:1; transform:translateX(0); }
+
+/* ===== HERO ===== */
+#hero {
+  min-height:100vh; background:var(--navy);
+  display:grid; grid-template-columns:1fr 1fr; align-items:center;
+  padding:60px 64px 80px; gap:80px; position:relative; overflow:hidden;
+}
+.hero-bg-grid {
+  position:absolute; inset:0;
+  background-image: linear-gradient(rgba(255,255,255,0.03) 1px,transparent 1px),
+                    linear-gradient(90deg,rgba(255,255,255,0.03) 1px,transparent 1px);
+  background-size:50px 50px;
+}
+.hero-bg-glow {
+  position:absolute; width:600px; height:600px; border-radius:50%;
+  background:radial-gradient(circle,rgba(21,101,192,0.18),transparent 70%);
+  top:-100px; right:-100px; pointer-events:none;
+}
+.hero-bg-glow2 {
+  position:absolute; width:400px; height:400px; border-radius:50%;
+  background:radial-gradient(circle,rgba(232,114,28,0.1),transparent 70%);
+  bottom:50px; left:200px; pointer-events:none;
+}
+.hero-left { position:relative; z-index:2; }
+.hero-eyebrow {
+  display:flex; align-items:center; gap:12px; margin-bottom:28px;
+}
+.eyebrow-line { width:40px; height:1px; background:var(--orange); }
+.eyebrow-text { font-family:var(--font-mono); font-size:11px; color:var(--orange); letter-spacing:3px; text-transform:uppercase; }
+.hero-title {
+  font-family:var(--font-display); font-size:clamp(48px,5.5vw,80px);
+  font-weight:800; line-height:1.0; color:var(--white); margin-bottom:24px;
+  opacity:0; transform:translateY(30px); animation:fadeUp .9s ease .3s forwards;
+}
+.hero-title .hl {
+  color:transparent; -webkit-text-stroke:1.5px var(--orange);
+}
+.hero-desc {
+  font-size:17px; color:rgba(255,255,255,0.65); line-height:1.8; font-weight:300;
+  max-width:480px; margin-bottom:40px;
+  opacity:0; transform:translateY(20px); animation:fadeUp .9s ease .55s forwards;
+}
+.hero-ctas {
+  display:flex; gap:14px; flex-wrap:wrap;
+  opacity:0; transform:translateY(20px); animation:fadeUp .9s ease .75s forwards;
+}
+.btn-primary {
+  background:var(--orange); color:var(--white); font-weight:600; font-size:14px;
+  letter-spacing:.5px; padding:14px 30px; text-decoration:none; display:inline-block;
+  transition:background .3s,transform .2s,box-shadow .3s; border:none; cursor:none;
+  font-family:var(--font-body);
+}
+.btn-primary:hover { background:var(--orange-dark); transform:translateY(-2px); box-shadow:0 8px 24px rgba(232,114,28,.4); }
+.btn-outline {
+  border:1.5px solid rgba(255,255,255,0.25); color:rgba(255,255,255,0.8);
+  font-weight:500; font-size:14px; padding:13px 28px; text-decoration:none;
+  display:inline-flex; align-items:center; gap:8px; transition:all .3s;
+}
+.btn-outline:hover { border-color:var(--orange); color:var(--orange); }
+.hero-right { position:relative; z-index:2; display:flex; justify-content:center; }
+.hero-placeholder {
+  width:100%; max-width:420px; aspect-ratio:3/4;
+  background:rgba(255,255,255,0.05); border:2px dashed rgba(255,255,255,0.15);
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:16px; position:relative; overflow:hidden;
+}
+.hero-placeholder-text { font-family:var(--font-mono); font-size:12px; color:rgba(255,255,255,0.3); letter-spacing:1px; text-align:center; }
+.placeholder-icon { font-size:48px; opacity:.2; }
+.hero-floating-card {
+  position:absolute; bottom:-20px; left:-30px;
+  background:var(--white); padding:16px 20px; box-shadow:var(--shadow-lg);
+  min-width:200px;
+}
+.hfc-label { font-family:var(--font-mono); font-size:10px; color:var(--orange); letter-spacing:2px; text-transform:uppercase; margin-bottom:6px; }
+.hfc-val { font-family:var(--font-display); font-size:28px; font-weight:800; color:var(--navy); }
+.hfc-sub { font-size:12px; color:var(--gray-400); margin-top:2px; }
+.hero-floating-card2 {
+  position:absolute; top:20px; right:-20px;
+  background:var(--orange); padding:14px 18px; box-shadow:var(--shadow-md);
+}
+.hfc2-label { font-size:11px; color:rgba(255,255,255,0.7); font-weight:500; margin-bottom:4px; }
+.hfc2-val { font-family:var(--font-display); font-size:22px; font-weight:800; color:var(--white); }
+.scroll-cue {
+  position:absolute; bottom:40px; left:64px; z-index:5;
+  display:flex; align-items:center; gap:12px;
+  opacity:0; animation:fadeUp .8s ease 1.1s forwards;
+}
+.scroll-cue-line { width:50px; height:1px; background:rgba(255,255,255,0.2); position:relative; overflow:hidden; }
+.scroll-cue-line::after { content:''; position:absolute; top:0; left:-100%; width:100%; height:100%; background:var(--orange); animation:lineSlide 2s ease infinite; }
+.scroll-cue-text { font-family:var(--font-mono); font-size:10px; color:rgba(255,255,255,0.3); letter-spacing:2px; text-transform:uppercase; }
+
+/* ===== PROBLEM ===== */
+#problem { padding:100px 64px; background:var(--off-white); }
+.problem-inner { max-width:1200px; margin:0 auto; }
+.problem-header { text-align:center; margin-bottom:72px; }
+.problem-header .section-title { font-size:clamp(36px,4vw,56px); margin-bottom:16px; }
+.stats-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:24px; margin-bottom:72px; }
+.stat-card {
+  background:var(--white); padding:36px 28px; border-top:3px solid transparent;
+  box-shadow:var(--shadow-sm); transition:all .3s; position:relative; overflow:hidden;
+}
+.stat-card::after {
+  content:''; position:absolute; bottom:0; left:0; right:0; height:2px;
+  background:linear-gradient(90deg,var(--blue),var(--orange));
+  transform:scaleX(0); transition:transform .4s; transform-origin:left;
+}
+.stat-card:hover { transform:translateY(-4px); box-shadow:var(--shadow-md); }
+.stat-card:hover::after { transform:scaleX(1); }
+.stat-card:nth-child(1) { border-top-color:var(--orange); }
+.stat-card:nth-child(2) { border-top-color:var(--blue-mid); }
+.stat-card:nth-child(3) { border-top-color:#E53935; }
+.stat-card:nth-child(4) { border-top-color:#7B1FA2; }
+.stat-icon { font-size:28px; margin-bottom:16px; }
+.stat-num { font-family:var(--font-display); font-size:42px; font-weight:800; color:var(--navy); line-height:1; margin-bottom:8px; }
+.stat-desc { font-size:14px; color:var(--gray-600); line-height:1.6; }
+.stat-pkr { font-size:12px; color:var(--orange); font-family:var(--font-mono); margin-top:6px; font-weight:500; }
+
+.problem-story {
+  display:grid; grid-template-columns:1fr 1fr; gap:80px; align-items:center;
+}
+.problem-story-text h3 { font-family:var(--font-display); font-size:32px; font-weight:800; color:var(--navy); margin-bottom:20px; line-height:1.2; }
+.problem-story-text p { font-size:15px; color:var(--gray-600); line-height:1.9; margin-bottom:16px; }
+.problem-list { list-style:none; display:flex; flex-direction:column; gap:14px; margin-top:24px; }
+.problem-list li {
+  display:flex; gap:14px; align-items:flex-start; padding:16px;
+  background:var(--white); border-left:3px solid var(--orange);
+  font-size:14px; color:var(--gray-600); line-height:1.6;
+}
+.problem-list li strong { color:var(--navy); display:block; font-size:15px; margin-bottom:3px; }
+.pl-icon { font-size:20px; flex-shrink:0; margin-top:2px; }
+
+.problem-image-box {
+  position:relative;
+}
+.img-placeholder {
+  width:100%; aspect-ratio:4/5; background:var(--gray-100);
+  border:2px dashed var(--gray-200); display:flex; flex-direction:column;
+  align-items:center; justify-content:center; gap:12px;
+}
+.img-placeholder-label { font-family:var(--font-mono); font-size:11px; color:var(--gray-400); letter-spacing:1px; text-align:center; padding:0 20px; }
+.img-overlay-badge {
+  position:absolute; bottom:24px; left:-20px;
+  background:var(--navy); color:var(--white);
+  padding:14px 20px; box-shadow:var(--shadow-lg);
+}
+.iob-num { font-family:var(--font-display); font-size:32px; font-weight:800; color:var(--orange); }
+.iob-text { font-size:12px; color:rgba(255,255,255,.7); margin-top:2px; }
+
+/* ===== SOLUTION ===== */
+#solution { padding:100px 64px; background:var(--white); }
+.solution-inner { max-width:1200px; margin:0 auto; }
+.solution-grid { display:grid; grid-template-columns:1fr 1fr; gap:80px; align-items:center; }
+.solution-text h2 { font-family:var(--font-display); font-size:clamp(32px,3.5vw,52px); font-weight:800; color:var(--navy); margin-bottom:20px; line-height:1.1; }
+.solution-text p { font-size:15px; color:var(--gray-600); line-height:1.9; margin-bottom:28px; }
+.solution-points { display:flex; flex-direction:column; gap:20px; }
+.sol-point {
+  display:flex; gap:16px; align-items:flex-start;
+}
+.sol-point-num {
+  width:36px; height:36px; background:var(--navy); color:var(--orange);
+  font-family:var(--font-display); font-size:16px; font-weight:800;
+  display:flex; align-items:center; justify-content:center; flex-shrink:0;
+}
+.sol-point-text h4 { font-size:15px; font-weight:600; color:var(--navy); margin-bottom:4px; }
+.sol-point-text p { font-size:13px; color:var(--gray-600); line-height:1.6; }
+
+.phone-mockup-wrap { position:relative; display:flex; justify-content:center; }
+.phone-frame {
+  width:260px; background:var(--navy); border-radius:36px; padding:12px;
+  box-shadow:0 24px 80px rgba(11,24,41,0.35); position:relative;
+}
+.phone-notch { width:80px; height:22px; background:var(--navy2); border-radius:0 0 14px 14px; margin:0 auto 10px; }
+.phone-screen { background:var(--off-white); border-radius:26px; overflow:hidden; padding:16px; min-height:460px; }
+.phone-screen-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+.phone-screen-title { font-size:13px; font-weight:700; color:var(--navy); font-family:var(--font-display); }
+.phone-status-dot { width:8px; height:8px; border-radius:50%; background:#4CAF50; animation:pulse 2s infinite; }
+.skeleton-canvas {
+  background:var(--navy); border-radius:12px; position:relative;
+  height:260px; overflow:hidden; margin-bottom:12px;
+}
+.skel-grid {
+  position:absolute; inset:0;
+  background-image:linear-gradient(rgba(255,255,255,.04) 1px,transparent 1px),
+                   linear-gradient(90deg,rgba(255,255,255,.04) 1px,transparent 1px);
+  background-size:20px 20px;
+}
+.skel-scan { position:absolute; left:0; right:0; height:1.5px; background:linear-gradient(90deg,transparent,var(--blue-light),transparent); animation:scanLine 2.5s ease-in-out infinite; box-shadow:0 0 8px var(--blue-light); }
+.skel-svg { position:absolute; inset:0; width:100%; height:100%; }
+.skel-point { position:absolute; width:8px; height:8px; border-radius:50%; transform:translate(-50%,-50%); }
+.skel-point.green { background:#4CAF50; box-shadow:0 0 6px #4CAF50; animation:pDot 2s ease infinite; }
+.skel-point.orange { background:var(--orange); box-shadow:0 0 6px var(--orange); animation:pDot 2s ease .5s infinite; }
+.feedback-row { display:flex; gap:8px; }
+.fb-chip { flex:1; padding:8px 10px; border-radius:6px; font-size:10px; font-weight:600; display:flex; align-items:center; gap:5px; }
+.fb-chip.good { background:#E8F5E9; color:#2E7D32; }
+.fb-chip.warn { background:#FFF3E0; color:#E65100; }
+.fb-dot { width:6px; height:6px; border-radius:50%; background:currentColor; flex-shrink:0; }
+.phone-label { font-size:10px; color:var(--gray-400); font-family:var(--font-mono); text-align:center; margin-top:10px; letter-spacing:1px; }
+
+.phone-floating-badge {
+  position:absolute; right:-40px; top:60px;
+  background:var(--orange); color:var(--white);
+  padding:12px 16px; box-shadow:var(--shadow-md); min-width:130px;
+}
+.pfb-label { font-size:10px; opacity:.8; font-weight:500; margin-bottom:3px; }
+.pfb-val { font-family:var(--font-display); font-size:20px; font-weight:800; }
+
+.phone-floating-badge2 {
+  position:absolute; left:-40px; bottom:80px;
+  background:var(--white); border:1px solid var(--gray-200);
+  padding:12px 16px; box-shadow:var(--shadow-lg); min-width:140px;
+}
+.pfb2-title { font-size:11px; font-weight:600; color:var(--navy); margin-bottom:8px; }
+.pfb2-bar { height:5px; background:var(--gray-200); border-radius:3px; margin-bottom:5px; overflow:hidden; }
+.pfb2-fill { height:100%; border-radius:3px; background:linear-gradient(90deg,var(--blue),var(--blue-light)); }
+.pfb2-label { font-size:10px; color:var(--gray-400); font-family:var(--font-mono); }
+
+/* ===== ML PIPELINE ===== */
+#ml-pipeline { padding:100px 64px; background:var(--navy); }
+.ml-inner { max-width:1200px; margin:0 auto; }
+.ml-header { text-align:center; margin-bottom:72px; }
+.ml-header .section-title { color:var(--white); font-size:clamp(32px,4vw,54px); }
+.ml-header .section-lead { color:rgba(255,255,255,.6); margin:16px auto 0; max-width:560px; }
+
+.pipeline-container { display:grid; grid-template-columns:1fr 1.4fr; gap:56px; align-items:start; }
+
+.pipeline-steps { display:flex; flex-direction:column; gap:0; }
+.pipeline-step {
+  display:flex; gap:0; cursor:none; position:relative;
+}
+.step-connector { display:flex; flex-direction:column; align-items:center; width:48px; flex-shrink:0; }
+.step-num {
+  width:44px; height:44px; border-radius:50%;
+  background:rgba(255,255,255,.06); border:1.5px solid rgba(255,255,255,.12);
+  display:flex; align-items:center; justify-content:center;
+  font-family:var(--font-display); font-size:16px; font-weight:800; color:rgba(255,255,255,.35);
+  transition:all .4s; flex-shrink:0;
+}
+.step-line { width:1.5px; flex:1; min-height:24px; background:rgba(255,255,255,.07); transition:background .4s; }
+.pipeline-step:last-child .step-line { display:none; }
+.step-content {
+  flex:1; padding:20px 0 28px 20px; transition:all .3s;
+}
+.step-label { font-family:var(--font-mono); font-size:10px; letter-spacing:2px; color:rgba(255,255,255,.3); text-transform:uppercase; margin-bottom:6px; transition:color .3s; }
+.step-title { font-family:var(--font-display); font-size:20px; font-weight:700; color:rgba(255,255,255,.5); margin-bottom:8px; transition:color .3s; }
+.step-desc { font-size:13px; color:rgba(255,255,255,.3); line-height:1.7; transition:color .3s; max-height:0; overflow:hidden; transition:max-height .4s ease,color .3s; }
+
+.pipeline-step.active .step-num {
+  background:var(--orange); border-color:var(--orange); color:var(--white);
+  box-shadow:0 0 20px rgba(232,114,28,.5);
+}
+.pipeline-step.active .step-line { background:var(--orange); opacity:.4; }
+.pipeline-step.active .step-label { color:var(--orange); }
+.pipeline-step.active .step-title { color:var(--white); }
+.pipeline-step.active .step-desc { color:rgba(255,255,255,.6); max-height:120px; }
+.pipeline-step.done .step-num {
+  background:rgba(21,101,192,.4); border-color:var(--blue-light); color:var(--blue-light);
+}
+.pipeline-step.done .step-line { background:var(--blue); opacity:.5; }
+.pipeline-step.done .step-title { color:rgba(255,255,255,.7); }
+
+.pipeline-visual {
+  position:sticky; top:120px;
+  background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.06);
+  padding:36px; min-height:420px;
+}
+.pv-title { font-family:var(--font-mono); font-size:10px; letter-spacing:2px; color:var(--orange); text-transform:uppercase; margin-bottom:24px; }
+
+.layer-display { position:relative; min-height:340px; }
+.layer-viz { display:none; flex-direction:column; align-items:center; gap:16px; }
+.layer-viz.active { display:flex; animation:vizFadeIn .4s ease; }
+
+/* Layer 1 — camera */
+.cam-icon { width:80px; height:60px; background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.15); display:flex; align-items:center; justify-content:center; font-size:32px; }
+.frame-strip { display:flex; gap:6px; }
+.frame { width:44px; height:32px; background:rgba(21,101,192,.2); border:1px solid var(--blue); position:relative; overflow:hidden; }
+.frame::after { content:''; position:absolute; inset:0; background:linear-gradient(135deg,rgba(66,165,245,.3),transparent); animation:framePulse 1.5s ease infinite; }
+.frame:nth-child(2)::after { animation-delay:.3s; }
+.frame:nth-child(3)::after { animation-delay:.6s; }
+.frame:nth-child(4)::after { animation-delay:.9s; }
+
+/* Layer 2 — skeleton */
+.skel-3d-wrap { position:relative; width:160px; height:200px; }
+.skel-3d-lines { width:100%; height:100%; }
+
+/* Layer 3 — joints */
+.joint-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; width:180px; }
+.joint-chip { padding:8px 10px; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.1); text-align:center; }
+.joint-chip.ok { border-color:rgba(76,175,80,.5); background:rgba(76,175,80,.08); }
+.joint-chip.warn { border-color:rgba(232,114,28,.5); background:rgba(232,114,28,.08); }
+.joint-name { font-family:var(--font-mono); font-size:9px; color:rgba(255,255,255,.5); text-transform:uppercase; letter-spacing:1px; }
+.joint-angle { font-family:var(--font-display); font-size:18px; color:var(--white); font-weight:800; }
+.joint-status { font-size:9px; margin-top:2px; }
+.joint-chip.ok .joint-status { color:#4CAF50; }
+.joint-chip.warn .joint-status { color:var(--orange); }
+
+/* Layer 4 — pattern */
+.pattern-bars { width:200px; display:flex; flex-direction:column; gap:8px; }
+.p-bar-row { display:flex; align-items:center; gap:10px; }
+.p-bar-label { font-family:var(--font-mono); font-size:10px; color:rgba(255,255,255,.5); width:60px; text-align:right; }
+.p-bar-track { flex:1; height:8px; background:rgba(255,255,255,.06); border-radius:4px; overflow:hidden; }
+.p-bar-fill { height:100%; border-radius:4px; background:linear-gradient(90deg,var(--blue),var(--blue-light)); animation:barGrow 1s ease forwards; }
+.p-bar-pct { font-family:var(--font-mono); font-size:10px; color:var(--blue-light); width:32px; }
+
+/* Layer 5 — report */
+.report-card { background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.1); padding:20px; width:220px; }
+.rc-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }
+.rc-title { font-family:var(--font-display); font-size:14px; color:var(--white); font-weight:700; }
+.rc-badge { font-family:var(--font-mono); font-size:9px; color:var(--orange); border:1px solid rgba(232,114,28,.4); padding:3px 8px; letter-spacing:1px; }
+.rc-row { display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid rgba(255,255,255,.05); font-size:12px; }
+.rc-row:last-child { border-bottom:none; }
+.rc-key { color:rgba(255,255,255,.4); }
+.rc-val { color:var(--white); font-weight:600; }
+.rc-val.good { color:#4CAF50; }
+.rc-val.warn { color:var(--orange); }
+
+.layer-tech { font-family:var(--font-mono); font-size:11px; color:rgba(255,255,255,.25); text-align:center; margin-top:12px; letter-spacing:1px; }
+
+.pipeline-controls { display:flex; gap:10px; margin-top:24px; justify-content:center; }
+.pctrl { padding:8px 18px; background:transparent; border:1px solid rgba(255,255,255,.12); color:rgba(255,255,255,.5); font-family:var(--font-mono); font-size:11px; letter-spacing:1px; cursor:none; transition:all .3s; }
+.pctrl:hover,.pctrl.active-ctrl { background:var(--orange); border-color:var(--orange); color:var(--white); }
+
+/* ===== DOCTOR DASHBOARD ===== */
+#doctor { padding:100px 64px; background:var(--off-white); }
+.doctor-inner { max-width:1200px; margin:0 auto; }
+.doctor-header { margin-bottom:64px; }
+.doctor-grid { display:grid; grid-template-columns:1fr 1.2fr; gap:64px; align-items:start; }
+.doctor-features { display:flex; flex-direction:column; gap:20px; }
+.doc-feat {
+  background:var(--white); padding:28px; border:1px solid var(--gray-200);
+  display:flex; gap:20px; align-items:flex-start;
+  transition:all .3s; position:relative; overflow:hidden;
+}
+.doc-feat::before { content:''; position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--blue); transform:scaleY(0); transition:transform .3s; }
+.doc-feat:hover { box-shadow:var(--shadow-md); transform:translateX(4px); }
+.doc-feat:hover::before { transform:scaleY(1); }
+.doc-feat-icon { width:48px; height:48px; background:var(--sky); display:flex; align-items:center; justify-content:center; font-size:22px; flex-shrink:0; }
+.doc-feat h4 { font-size:16px; font-weight:700; color:var(--navy); margin-bottom:6px; }
+.doc-feat p { font-size:13px; color:var(--gray-600); line-height:1.7; }
+
+.dashboard-mockup {
+  background:var(--white); border:1px solid var(--gray-200); overflow:hidden;
+  box-shadow:var(--shadow-lg);
+}
+.db-topbar {
+  background:var(--navy); padding:14px 20px;
+  display:flex; align-items:center; justify-content:space-between;
+}
+.db-title { font-family:var(--font-display); font-size:14px; color:var(--white); letter-spacing:1px; }
+.db-dots { display:flex; gap:6px; }
+.db-dot { width:8px; height:8px; border-radius:50%; }
+.db-body { padding:20px; }
+.db-patient-row {
+  display:flex; align-items:center; gap:12px; padding:12px;
+  background:var(--sky); margin-bottom:16px;
+}
+.db-avatar { width:36px; height:36px; border-radius:50%; background:var(--navy); display:flex; align-items:center; justify-content:center; font-family:var(--font-display); font-size:14px; color:var(--orange); font-weight:800; flex-shrink:0; }
+.db-patient-info { flex:1; }
+.db-patient-name { font-size:13px; font-weight:700; color:var(--navy); }
+.db-patient-sub { font-size:11px; color:var(--gray-400); font-family:var(--font-mono); }
+.db-status-badge { font-size:10px; font-family:var(--font-mono); padding:4px 10px; background:#E8F5E9; color:#2E7D32; letter-spacing:1px; }
+.db-metrics { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:16px; }
+.db-metric { background:var(--gray-100); padding:10px 12px; text-align:center; }
+.db-metric-val { font-family:var(--font-display); font-size:20px; font-weight:800; color:var(--navy); }
+.db-metric-label { font-size:10px; color:var(--gray-400); font-family:var(--font-mono); margin-top:2px; }
+.db-exercises { }
+.db-ex-title { font-size:11px; font-weight:600; color:var(--gray-400); text-transform:uppercase; letter-spacing:1.5px; font-family:var(--font-mono); margin-bottom:10px; }
+.db-ex-row { display:flex; align-items:center; gap:10px; padding:10px 0; border-bottom:1px solid var(--gray-100); }
+.db-ex-row:last-child { border-bottom:none; }
+.db-ex-icon { font-size:16px; }
+.db-ex-name { flex:1; font-size:13px; color:var(--navy); font-weight:500; }
+.db-ex-intensity { font-family:var(--font-mono); font-size:10px; padding:3px 8px; }
+.db-ex-intensity.low { background:#E3F2FD; color:var(--blue); }
+.db-ex-intensity.med { background:#FFF3E0; color:var(--orange-dark); }
+.db-ex-intensity.high { background:#FCE4EC; color:#C62828; }
+.db-ex-actions { display:flex; gap:6px; }
+.db-ex-btn { width:26px; height:26px; background:var(--gray-100); border:none; display:flex; align-items:center; justify-content:center; font-size:12px; cursor:none; transition:background .2s; }
+.db-ex-btn:hover { background:var(--sky2); }
+
+/* ===== ACCESSIBILITY ===== */
+#access { padding:100px 64px; background:var(--white); }
+.access-inner { max-width:1200px; margin:0 auto; }
+.access-header { text-align:center; margin-bottom:64px; }
+.access-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:24px; }
+.access-card {
+  padding:36px 28px; border:1px solid var(--gray-200);
+  transition:all .3s; text-align:center; position:relative; overflow:hidden;
+}
+.access-card::after {
+  content:''; position:absolute; top:0; left:0; right:0; height:2px;
+  background:linear-gradient(90deg,var(--blue),var(--orange));
+  transform:scaleX(0); transition:transform .4s; transform-origin:left;
+}
+.access-card:hover { transform:translateY(-6px); box-shadow:var(--shadow-md); border-color:transparent; }
+.access-card:hover::after { transform:scaleX(1); }
+.access-icon { font-size:40px; margin-bottom:16px; display:block; }
+.access-title { font-family:var(--font-display); font-size:18px; font-weight:800; color:var(--navy); margin-bottom:10px; }
+.access-desc { font-size:13px; color:var(--gray-600); line-height:1.7; }
+.access-tag { display:inline-block; margin-top:14px; font-family:var(--font-mono); font-size:10px; color:var(--blue); background:var(--sky); padding:4px 12px; letter-spacing:1px; }
+
+/* ===== WHO IT'S FOR ===== */
+#personas { padding:100px 64px; background:var(--navy); }
+.personas-inner { max-width:1200px; margin:0 auto; }
+.personas-header { text-align:center; margin-bottom:64px; }
+.personas-header .section-title { color:var(--white); }
+.personas-header .section-lead { color:rgba(255,255,255,.55); margin:16px auto 0; max-width:560px; }
+.personas-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:24px; }
+.persona-card {
+  background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.07);
+  padding:40px 32px; transition:all .4s; position:relative; overflow:hidden;
+}
+.persona-card:hover { background:rgba(255,255,255,.07); border-color:rgba(232,114,28,.3); transform:translateY(-6px); }
+.persona-card::before {
+  content:''; position:absolute; bottom:0; left:0; right:0; height:2px;
+  background:linear-gradient(90deg,var(--orange),var(--blue-light));
+  transform:scaleX(0); transition:transform .4s;
+}
+.persona-card:hover::before { transform:scaleX(1); }
+.persona-icon { font-size:44px; display:block; margin-bottom:20px; }
+.persona-tag { font-family:var(--font-mono); font-size:10px; color:var(--orange); letter-spacing:2px; text-transform:uppercase; margin-bottom:10px; }
+.persona-name { font-family:var(--font-display); font-size:24px; font-weight:800; color:var(--white); margin-bottom:14px; }
+.persona-desc { font-size:14px; color:rgba(255,255,255,.55); line-height:1.8; margin-bottom:20px; }
+.persona-features { list-style:none; display:flex; flex-direction:column; gap:8px; }
+.persona-features li { font-size:13px; color:rgba(255,255,255,.5); display:flex; gap:8px; align-items:flex-start; }
+.persona-features li::before { content:'→'; color:var(--orange); flex-shrink:0; }
+
+/* ===== PROCESS ===== */
+#process { padding:100px 64px; background:var(--off-white); }
+.process-inner { max-width:1200px; margin:0 auto; }
+.process-header { text-align:center; margin-bottom:72px; }
+.process-steps { display:grid; grid-template-columns:repeat(4,1fr); gap:0; position:relative; }
+.process-steps::before {
+  content:''; position:absolute; top:28px; left:12.5%; right:12.5%; height:1px;
+  background:linear-gradient(90deg,var(--blue),var(--orange)); z-index:0;
+}
+.proc-step { text-align:center; padding:0 16px; position:relative; z-index:1; }
+.proc-num {
+  width:56px; height:56px; border-radius:50%;
+  background:var(--white); border:2px solid var(--gray-200);
+  display:flex; align-items:center; justify-content:center;
+  font-family:var(--font-display); font-size:22px; font-weight:800;
+  color:var(--navy); margin:0 auto 20px; box-shadow:var(--shadow-sm);
+  transition:all .3s;
+}
+.proc-step:nth-child(1) .proc-num { border-color:var(--blue); color:var(--blue); }
+.proc-step:nth-child(2) .proc-num { border-color:var(--blue-mid); color:var(--blue-mid); }
+.proc-step:nth-child(3) .proc-num { border-color:var(--orange); color:var(--orange); }
+.proc-step:nth-child(4) .proc-num { border-color:var(--orange-dark); color:var(--orange-dark); }
+.proc-title { font-family:var(--font-display); font-size:16px; font-weight:800; color:var(--navy); margin-bottom:8px; }
+.proc-desc { font-size:13px; color:var(--gray-600); line-height:1.6; }
+
+/* ===== CTA ===== */
+#cta { padding:100px 64px; background:var(--navy); text-align:center; position:relative; overflow:hidden; }
+.cta-glow { position:absolute; width:500px; height:500px; border-radius:50%; background:radial-gradient(circle,rgba(232,114,28,.12),transparent 70%); top:50%; left:50%; transform:translate(-50%,-50%); pointer-events:none; }
+.cta-inner { max-width:700px; margin:0 auto; position:relative; z-index:2; }
+.cta-title { font-family:var(--font-display); font-size:clamp(40px,5vw,70px); font-weight:800; color:var(--white); line-height:1.05; margin-bottom:20px; }
+.cta-sub { font-size:16px; color:rgba(255,255,255,.55); line-height:1.8; margin-bottom:40px; }
+.cta-btns { display:flex; gap:14px; justify-content:center; flex-wrap:wrap; }
+
+/* FOOTER */
+footer { background:var(--gray-800); padding:48px 64px; border-top:1px solid rgba(255,255,255,.05); }
+.footer-inner { max-width:1200px; margin:0 auto; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:20px; }
+.footer-logo { display:flex; align-items:center; gap:10px; text-decoration:none; }
+.footer-logo .logo-hex { background:var(--orange); }
+.footer-logo .logo-text { color:var(--white); }
+.footer-nav { display:flex; gap:28px; }
+.footer-nav a { font-size:13px; color:rgba(255,255,255,.4); text-decoration:none; transition:color .3s; }
+.footer-nav a:hover { color:var(--orange); }
+.footer-copy { font-family:var(--font-mono); font-size:11px; color:rgba(255,255,255,.25); width:100%; text-align:center; border-top:1px solid rgba(255,255,255,.05); padding-top:24px; margin-top:12px; letter-spacing:1px; }
+
+/* KEYFRAMES */
+@keyframes fadeUp { to { opacity:1; transform:translateY(0); } }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(.8)} }
+@keyframes scanLine { 0%{top:5%} 50%{top:88%} 100%{top:5%} }
+@keyframes pDot { 0%,100%{opacity:1} 50%{opacity:.3} }
+@keyframes framePulse { 0%,100%{opacity:.3} 50%{opacity:1} }
+@keyframes barGrow { from{width:0} }
+@keyframes vizFadeIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+@keyframes lineSlide { 0%{left:-100%} 100%{left:100%} }
+</style>
+</head>
+<body>
+
+<div class="cur" id="cur"></div>
+<div class="cur-ring" id="curRing"></div>
+
+<!-- COMING SOON BANNER -->
+<div style="height:62px"></div>
+<div class="coming-soon-bar">
+  <div class="csb-badge">🚧 Preview</div>
+  <div class="csb-text">
+    <div class="csb-dot"></div>
+    This feature is currently under development — Coming Soon
+  </div>
+  <a href="index.html" class="csb-back">← Back to Kinai</a>
+</div>
+
+<!-- ===== HERO ===== -->
+<section id="hero">
+  <div class="hero-bg-grid"></div>
+  <div class="hero-bg-glow"></div>
+  <div class="hero-bg-glow2"></div>
+
+  <div class="hero-left">
+    <div class="hero-eyebrow">
+      <div class="eyebrow-line"></div>
+      <div class="eyebrow-text">AI-Powered Physiotherapy</div>
+    </div>
+    <h1 class="hero-title">Recovery<br>Shouldn't Stop<br>at the <span class="hl">Clinic Door</span></h1>
+    <p class="hero-desc">Kinai brings intelligent physiotherapy guidance to your home. Real-time AI monitors your movement, corrects your form, and keeps your doctor informed — so recovery never pauses.</p>
+    <div class="hero-ctas">
+      <a href="#solution" class="btn-primary">See How It Works</a>
+      <a href="#ml-pipeline" class="btn-outline">
+        Explore the AI Model
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7h10M12 7l-4-4M12 7l-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+    </div>
+  </div>
+
+  <div class="hero-right">
+    <div class="hero-placeholder">
+      <span class="placeholder-icon">🧑‍🦯</span>
+      <div class="hero-placeholder-text">[ PHOTO PLACEHOLDER ]<br>Elderly person with knee pain<br>walking with difficulty ]</div>
+      <div class="hero-floating-card">
+        <div class="hfc-label">Yearly Non-Recoveries</div>
+        <div class="hfc-val">15,000+</div>
+        <div class="hfc-sub">due to lack of proper physio</div>
+      </div>
+      <div class="hero-floating-card2">
+        <div class="hfc2-label">Need Physio Globally</div>
+        <div class="hfc2-val">500M+</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="scroll-cue">
+    <div class="scroll-cue-line"></div>
+    <div class="scroll-cue-text">Scroll to explore</div>
+  </div>
+</section>
+
+<!-- ===== PROBLEM ===== -->
+<section id="problem">
+  <div class="problem-inner">
+    <div class="problem-header reveal">
+      <div class="section-badge">The Crisis</div>
+      <h2 class="section-title" style="font-size:clamp(36px,4vw,56px);margin-bottom:16px;">The Problem Is <span class="orange-text">Bigger</span><br>Than You Think</h2>
+      <p class="section-lead" style="max-width:600px;margin:0 auto;">Physiotherapy works — but only when done correctly, consistently, and regularly. For millions, that's simply not happening.</p>
+    </div>
+
+    <div class="stats-grid reveal">
+      <div class="stat-card">
+        <div class="stat-icon">🌍</div>
+        <div class="stat-num">500M+</div>
+        <div class="stat-desc">People worldwide require physiotherapy services at any given time — many with no access to qualified care.</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">💔</div>
+        <div class="stat-num">15,000+</div>
+        <div class="stat-desc">Patients fail to fully recover each year due to inadequate follow-through on prescribed home exercise programs.</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">⚠️</div>
+        <div class="stat-num">40%</div>
+        <div class="stat-desc">Re-injury rate among patients who perform rehabilitation exercises at home without professional supervision.</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">💸</div>
+        <div class="stat-num">Rs. 8,000+</div>
+        <div class="stat-desc">Cost of a single in-clinic physiotherapy session in Pakistan, making regular visits unaffordable for most families.</div>
+        <div class="stat-pkr">Per Session · Private Clinic · Pakistan</div>
+      </div>
+    </div>
+
+    <div class="problem-story">
+      <div class="problem-story-text reveal-l">
+        <h3>Why Home Physiotherapy <span class="orange-text">Fails</span> Without Support</h3>
+        <p>After discharge from a clinic or hospital, patients are handed a sheet of exercises and sent home. Without real-time feedback, motivation, or professional oversight, the vast majority struggle to comply — or worse, injure themselves further.</p>
+        <p>The consequences ripple far beyond physical pain: longer recovery times, higher medical bills, reduced quality of life, and in elderly patients, a dangerous loss of independence.</p>
+        <ul class="problem-list">
+          <li>
+            <span class="pl-icon">🚶</span>
+            <div><strong>Incorrect Form at Home</strong>Over 60% of patients skip or incorrectly perform prescribed exercises — not out of laziness, but because they have no way to know if they're doing it right.</div>
+          </li>
+          <li>
+            <span class="pl-icon">💰</span>
+            <div><strong>Prohibitive Session Costs</strong>At Rs. 8,000+ per clinic visit, continuous professional guidance is financially out of reach for the majority of Pakistani families.</div>
+          </li>
+          <li>
+            <span class="pl-icon">📍</span>
+            <div><strong>Geographic Barriers</strong>Qualified physiotherapists are concentrated in urban centres, leaving rural patients with virtually no access to specialist care.</div>
+          </li>
+          <li>
+            <span class="pl-icon">👴</span>
+            <div><strong>No Oversight for Elderly Patients</strong>Elderly patients living alone are particularly vulnerable — a single incorrect movement can undo weeks of recovery or cause serious harm.</div>
+          </li>
+        </ul>
+      </div>
+      <div class="problem-image-box reveal-r">
+        <div class="img-placeholder">
+          <span style="font-size:56px;opacity:.2">🧓</span>
+          <div class="img-placeholder-label">[ PHOTO PLACEHOLDER ]<br>Elderly person holding knee,<br>struggling to walk at home ]</div>
+        </div>
+        <div class="img-overlay-badge">
+          <div class="iob-num">60%</div>
+          <div class="iob-text">skip home exercises entirely</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== SOLUTION ===== -->
+<section id="solution">
+  <div class="solution-inner">
+    <div style="text-align:center;margin-bottom:72px;" class="reveal">
+      <div class="section-badge">The Solution</div>
+      <h2 class="section-title" style="font-size:clamp(36px,4vw,52px);margin-bottom:16px;">Kinai <span class="blue-text">Watches.</span> Kinai <span class="orange-text">Corrects.</span><br>You Recover.</h2>
+      <p class="section-lead" style="max-width:580px;margin:0 auto;">Your smartphone becomes a 24/7 physiotherapy assistant — watching your movements, correcting your form in real time, and sending detailed progress reports to your doctor.</p>
+    </div>
+
+    <div class="solution-grid">
+      <div class="solution-text reveal-l">
+        <div class="section-badge" style="margin-bottom:28px">How It Works</div>
+        <h3 style="font-family:var(--font-display);font-size:28px;font-weight:800;color:var(--navy);margin-bottom:20px;line-height:1.2;">From Doctor's Prescription<br>to AI-Guided Recovery</h3>
+        <p>Your physiotherapist prescribes a set of exercises. Kinai maps those exercises to guided AI routines. You perform them at home — the app watches, corrects, and reports. Your doctor stays informed without you needing to travel.</p>
+        <div class="solution-points" style="margin-top:32px">
+          <div class="sol-point">
+            <div class="sol-point-num">1</div>
+            <div class="sol-point-text">
+              <h4>Upload Your Prescription</h4>
+              <p>Patient or doctor uploads the prescribed exercise protocol. Kinai automatically maps it to guided video routines.</p>
+            </div>
+          </div>
+          <div class="sol-point">
+            <div class="sol-point-num">2</div>
+            <div class="sol-point-text">
+              <h4>AI Monitors Every Movement</h4>
+              <p>Your phone camera tracks 33 body keypoints using our 5-layer ML model, analyzing every rep in real time.</p>
+            </div>
+          </div>
+          <div class="sol-point">
+            <div class="sol-point-num">3</div>
+            <div class="sol-point-text">
+              <h4>Instant Feedback & Correction</h4>
+              <p>Kinai speaks to you in your language — correcting form, counting reps, and warning against dangerous positions.</p>
+            </div>
+          </div>
+          <div class="sol-point">
+            <div class="sol-point-num">4</div>
+            <div class="sol-point-text">
+              <h4>Doctor Receives Weekly Reports</h4>
+              <p>Detailed movement analysis, compliance records, and red flags are automatically sent to your physiotherapist.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="phone-mockup-wrap reveal-r">
+        <div class="phone-frame">
+          <div class="phone-notch"></div>
+          <div class="phone-screen">
+            <div class="phone-screen-header">
+              <div class="phone-screen-title">KINAI PHYSIO</div>
+              <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--gray-400);font-family:var(--font-mono);">
+                <div class="phone-status-dot"></div>LIVE
+              </div>
+            </div>
+            <div class="skeleton-canvas">
+              <div class="skel-grid"></div>
+              <div class="skel-scan"></div>
+              <svg class="skel-svg" viewBox="0 0 220 260" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <!-- Head -->
+                <circle cx="110" cy="38" r="22" stroke="rgba(66,165,245,0.6)" stroke-width="1.5"/>
+                <!-- Spine -->
+                <line x1="110" y1="60" x2="110" y2="148" stroke="rgba(66,165,245,0.5)" stroke-width="1.5"/>
+                <!-- Shoulders -->
+                <line x1="60" y1="80" x2="160" y2="80" stroke="rgba(66,165,245,0.5)" stroke-width="1.5"/>
+                <!-- Left arm -->
+                <line x1="60" y1="80" x2="42" y2="128" stroke="rgba(66,165,245,0.5)" stroke-width="1.5"/>
+                <line x1="42" y1="128" x2="30" y2="168" stroke="rgba(66,165,245,0.5)" stroke-width="1.5"/>
+                <!-- Right arm — slightly off (orange) -->
+                <line x1="160" y1="80" x2="182" y2="128" stroke="rgba(232,114,28,0.7)" stroke-width="1.5"/>
+                <line x1="182" y1="128" x2="195" y2="165" stroke="rgba(232,114,28,0.7)" stroke-width="1.5"/>
+                <!-- Hips -->
+                <line x1="80" y1="148" x2="140" y2="148" stroke="rgba(66,165,245,0.5)" stroke-width="1.5"/>
+                <!-- Left leg -->
+                <line x1="80" y1="148" x2="72" y2="210" stroke="rgba(66,165,245,0.5)" stroke-width="1.5"/>
+                <line x1="72" y1="210" x2="68" y2="255" stroke="rgba(66,165,245,0.5)" stroke-width="1.5"/>
+                <!-- Right leg -->
+                <line x1="140" y1="148" x2="148" y2="210" stroke="rgba(66,165,245,0.5)" stroke-width="1.5"/>
+                <line x1="148" y1="210" x2="152" y2="255" stroke="rgba(66,165,245,0.5)" stroke-width="1.5"/>
+              </svg>
+              <!-- Keypoints -->
+              <div class="skel-point green" style="top:14%;left:50%"></div>
+              <div class="skel-point green" style="top:30%;left:27%"></div>
+              <div class="skel-point orange" style="top:30%;left:73%"></div>
+              <div class="skel-point green" style="top:48%;left:50%"></div>
+              <div class="skel-point green" style="top:58%;left:36%"></div>
+              <div class="skel-point green" style="top:58%;left:64%"></div>
+              <div class="skel-point green" style="top:82%;left:33%"></div>
+              <div class="skel-point green" style="top:82%;left:67%"></div>
+            </div>
+            <div class="feedback-row">
+              <div class="fb-chip good"><div class="fb-dot"></div>Left side: Correct</div>
+              <div class="fb-chip warn"><div class="fb-dot"></div>Right arm: Adjust</div>
+            </div>
+            <div style="margin-top:10px;background:var(--sky);padding:10px 12px;">
+              <div style="font-size:10px;font-family:var(--font-mono);color:var(--blue);margin-bottom:4px;">SESSION PROGRESS</div>
+              <div style="background:var(--sky2);height:5px;border-radius:3px;overflow:hidden;"><div style="width:65%;height:100%;background:var(--blue);border-radius:3px;"></div></div>
+              <div style="display:flex;justify-content:space-between;margin-top:4px;font-size:10px;color:var(--gray-400);font-family:var(--font-mono);">
+                <span>Rep 13 of 20</span><span>65%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="phone-label">AI POSTURE DETECTION · LIVE DEMO</div>
+
+        <div class="phone-floating-badge">
+          <div class="pfb-label">Form Accuracy</div>
+          <div class="pfb-val">94.2%</div>
+        </div>
+        <div class="phone-floating-badge2">
+          <div class="pfb2-title">Recovery Progress</div>
+          <div style="display:flex;flex-direction:column;gap:6px;margin-top:8px;">
+            <div><div class="pfb2-bar"><div class="pfb2-fill" style="width:78%"></div></div><div class="pfb2-label">Knee Flexion 78%</div></div>
+            <div><div class="pfb2-bar"><div class="pfb2-fill" style="width:62%"></div></div><div class="pfb2-label">Hip Mobility 62%</div></div>
+            <div><div class="pfb2-bar"><div class="pfb2-fill" style="width:91%"></div></div><div class="pfb2-label">Balance 91%</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== ML PIPELINE ===== -->
+<section id="ml-pipeline">
+  <div class="ml-inner">
+    <div class="ml-header reveal">
+      <div class="section-badge" style="background:rgba(255,255,255,.06);color:var(--orange);border-color:rgba(232,114,28,.3);">5-Layer AI Architecture</div>
+      <h2 class="section-title" style="color:var(--white);">The Machine Learning<br><span style="color:var(--orange);">Pipeline</span> Inside Kinai</h2>
+      <p class="section-lead">Five specialized neural layers work in sequence — from raw camera frames to intelligent rehabilitation feedback. Each layer builds on the last to deliver clinical-grade analysis.</p>
+    </div>
+
+    <div class="pipeline-container reveal">
+      <div class="pipeline-steps" id="pipelineSteps">
+        <div class="pipeline-step active" data-layer="0">
+          <div class="step-connector">
+            <div class="step-num">1</div>
+            <div class="step-line"></div>
+          </div>
+          <div class="step-content">
+            <div class="step-label">Layer 01</div>
+            <div class="step-title">Camera Input & Frame Extraction</div>
+            <div class="step-desc">The device camera captures a live video stream. Each frame is extracted, preprocessed, and normalized to a consistent resolution and brightness. Background noise is filtered to isolate the patient's body region using a lightweight segmentation model.</div>
+          </div>
+        </div>
+        <div class="pipeline-step" data-layer="1">
+          <div class="step-connector">
+            <div class="step-num">2</div>
+            <div class="step-line"></div>
+          </div>
+          <div class="step-content">
+            <div class="step-label">Layer 02</div>
+            <div class="step-title">3D Skeleton Generation</div>
+            <div class="step-desc">MediaPipe Pose detects 33 anatomical landmarks across the full body from a 2D image. These landmarks are then projected into 3D space using depth estimation, creating a real-time skeletal model with X, Y, Z coordinates for every joint.</div>
+          </div>
+        </div>
+        <div class="pipeline-step" data-layer="2">
+          <div class="step-connector">
+            <div class="step-num">3</div>
+            <div class="step-line"></div>
+          </div>
+          <div class="step-content">
+            <div class="step-label">Layer 03</div>
+            <div class="step-title">Joint Angle Analysis & Posture Classification</div>
+            <div class="step-desc">Joint angles are calculated from the 3D skeleton using vector mathematics. Each angle is compared against a clinical reference model for the prescribed exercise. Posture is classified as correct, caution, or danger based on deviation thresholds defined by rehabilitation protocols.</div>
+          </div>
+        </div>
+        <div class="pipeline-step" data-layer="3">
+          <div class="step-connector">
+            <div class="step-num">4</div>
+            <div class="step-line"></div>
+          </div>
+          <div class="step-content">
+            <div class="step-label">Layer 04</div>
+            <div class="step-title">Exercise Pattern Recognition</div>
+            <div class="step-desc">A sequence model analyses the temporal pattern of joint movements over time to recognize which exercise is being performed and whether the full motion arc is being completed. This catches partial reps, wrong exercise selection, and incorrect movement patterns.</div>
+          </div>
+        </div>
+        <div class="pipeline-step" data-layer="4">
+          <div class="step-connector">
+            <div class="step-num">5</div>
+            <div class="step-line"></div>
+          </div>
+          <div class="step-content">
+            <div class="step-label">Layer 05</div>
+            <div class="step-title">Feedback Engine & Doctor Report Generation</div>
+            <div class="step-desc">Real-time audio and visual feedback is delivered to the patient. Simultaneously, session data — rep counts, form scores, deviation events, and completion rates — is compiled into a structured report automatically sent to the treating physiotherapist.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pipeline-visual">
+        <div class="pv-title">// Layer Visualization</div>
+        <div class="layer-display">
+
+          <!-- Layer 1 -->
+          <div class="layer-viz active" id="lv0">
+            <div class="cam-icon">📷</div>
+            <div style="font-family:var(--font-mono);font-size:11px;color:rgba(255,255,255,.4);letter-spacing:1px;margin:4px 0 12px;">RAW VIDEO STREAM</div>
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M4 10h12M12 6l4 4-4 4" stroke="rgba(232,114,28,.6)" stroke-width="1.5" stroke-linecap="round"/></svg>
+              <span style="font-family:var(--font-mono);font-size:10px;color:rgba(255,255,255,.3)">EXTRACTING FRAMES</span>
+            </div>
+            <div class="frame-strip">
+              <div class="frame"></div>
+              <div class="frame"></div>
+              <div class="frame"></div>
+              <div class="frame"></div>
+            </div>
+            <div class="layer-tech">OpenCV · 30fps · 720p Normalization</div>
+          </div>
+
+          <!-- Layer 2 -->
+          <div class="layer-viz" id="lv1">
+            <div style="font-family:var(--font-mono);font-size:10px;color:rgba(66,165,245,.7);letter-spacing:2px;margin-bottom:12px;">33 KEYPOINTS DETECTED</div>
+            <div class="skel-3d-wrap">
+              <svg class="skel-3d-lines" viewBox="0 0 160 200" fill="none">
+                <circle cx="80" cy="20" r="14" stroke="rgba(66,165,245,0.7)" stroke-width="1.5"/>
+                <line x1="80" y1="34" x2="80" y2="100" stroke="rgba(66,165,245,0.5)" stroke-width="1.5"/>
+                <line x1="40" y1="55" x2="120" y2="55" stroke="rgba(66,165,245,0.5)" stroke-width="1.5"/>
+                <line x1="40" y1="55" x2="22" y2="88" stroke="rgba(66,165,245,0.5)" stroke-width="1.5"/>
+                <line x1="22" y1="88" x2="14" y2="115" stroke="rgba(66,165,245,0.5)" stroke-width="1.5"/>
+                <line x1="120" y1="55" x2="138" y2="88" stroke="rgba(232,114,28,0.7)" stroke-width="1.5"/>
+                <line x1="138" y1="88" x2="146" y2="115" stroke="rgba(232,114,28,0.7)" stroke-width="1.5"/>
+                <line x1="58" y1="100" x2="102" y2="100" stroke="rgba(66,165,245,0.5)" stroke-width="1.5"/>
+                <line x1="58" y1="100" x2="50" y2="152" stroke="rgba(66,165,245,0.5)" stroke-width="1.5"/>
+                <line x1="50" y1="152" x2="46" y2="192" stroke="rgba(66,165,245,0.5)" stroke-width="1.5"/>
+                <line x1="102" y1="100" x2="110" y2="152" stroke="rgba(66,165,245,0.5)" stroke-width="1.5"/>
+                <line x1="110" y1="152" x2="114" y2="192" stroke="rgba(66,165,245,0.5)" stroke-width="1.5"/>
+                <!-- keypoints -->
+                <circle cx="80" cy="20" r="3" fill="#42A5F5"/>
+                <circle cx="40" cy="55" r="3" fill="#42A5F5"/>
+                <circle cx="120" cy="55" r="3" fill="#E8721C"/>
+                <circle cx="80" cy="100" r="3" fill="#42A5F5"/>
+                <circle cx="22" cy="88" r="3" fill="#42A5F5"/>
+                <circle cx="138" cy="88" r="3" fill="#E8721C"/>
+                <circle cx="14" cy="115" r="3" fill="#42A5F5"/>
+                <circle cx="146" cy="115" r="3" fill="#E8721C"/>
+                <circle cx="58" cy="100" r="3" fill="#42A5F5"/>
+                <circle cx="102" cy="100" r="3" fill="#42A5F5"/>
+                <circle cx="50" cy="152" r="3" fill="#42A5F5"/>
+                <circle cx="110" cy="152" r="3" fill="#42A5F5"/>
+              </svg>
+            </div>
+            <div class="layer-tech">MediaPipe Pose · 3D Projection · Depth Estimation</div>
+          </div>
+
+          <!-- Layer 3 -->
+          <div class="layer-viz" id="lv2">
+            <div style="font-family:var(--font-mono);font-size:10px;color:rgba(66,165,245,.7);letter-spacing:2px;margin-bottom:16px;">JOINT ANGLE ANALYSIS</div>
+            <div class="joint-grid">
+              <div class="joint-chip ok">
+                <div class="joint-name">L Knee</div>
+                <div class="joint-angle">142°</div>
+                <div class="joint-status">✓ Good</div>
+              </div>
+              <div class="joint-chip warn">
+                <div class="joint-name">R Elbow</div>
+                <div class="joint-angle">78°</div>
+                <div class="joint-status">⚠ Adjust</div>
+              </div>
+              <div class="joint-chip ok">
+                <div class="joint-name">L Hip</div>
+                <div class="joint-angle">165°</div>
+                <div class="joint-status">✓ Good</div>
+              </div>
+              <div class="joint-chip ok">
+                <div class="joint-name">Spine</div>
+                <div class="joint-angle">178°</div>
+                <div class="joint-status">✓ Good</div>
+              </div>
+              <div class="joint-chip ok">
+                <div class="joint-name">L Shoulder</div>
+                <div class="joint-angle">92°</div>
+                <div class="joint-status">✓ Good</div>
+              </div>
+              <div class="joint-chip ok">
+                <div class="joint-name">R Hip</div>
+                <div class="joint-angle">163°</div>
+                <div class="joint-status">✓ Good</div>
+              </div>
+            </div>
+            <div class="layer-tech">Vector Math · Reference Model Comparison</div>
+          </div>
+
+          <!-- Layer 4 -->
+          <div class="layer-viz" id="lv3">
+            <div style="font-family:var(--font-mono);font-size:10px;color:rgba(66,165,245,.7);letter-spacing:2px;margin-bottom:16px;">EXERCISE RECOGNITION</div>
+            <div class="pattern-bars">
+              <div class="p-bar-row">
+                <div class="p-bar-label">Squat</div>
+                <div class="p-bar-track"><div class="p-bar-fill" style="width:94%;animation-delay:.1s"></div></div>
+                <div class="p-bar-pct">94%</div>
+              </div>
+              <div class="p-bar-row">
+                <div class="p-bar-label">Lunge</div>
+                <div class="p-bar-track"><div class="p-bar-fill" style="width:3%;animation-delay:.2s;background:rgba(255,255,255,.15)"></div></div>
+                <div class="p-bar-pct" style="color:rgba(255,255,255,.2)">3%</div>
+              </div>
+              <div class="p-bar-row">
+                <div class="p-bar-label">SL Stand</div>
+                <div class="p-bar-track"><div class="p-bar-fill" style="width:2%;animation-delay:.3s;background:rgba(255,255,255,.15)"></div></div>
+                <div class="p-bar-pct" style="color:rgba(255,255,255,.2)">2%</div>
+              </div>
+              <div class="p-bar-row">
+                <div class="p-bar-label">Hip Hinge</div>
+                <div class="p-bar-track"><div class="p-bar-fill" style="width:1%;animation-delay:.4s;background:rgba(255,255,255,.15)"></div></div>
+                <div class="p-bar-pct" style="color:rgba(255,255,255,.2)">1%</div>
+              </div>
+            </div>
+            <div style="margin-top:14px;background:rgba(76,175,80,.1);border:1px solid rgba(76,175,80,.25);padding:10px 14px;display:flex;gap:8px;align-items:center;">
+              <span style="color:#4CAF50;font-size:16px">✓</span>
+              <span style="font-family:var(--font-mono);font-size:11px;color:rgba(255,255,255,.6)">SQUAT DETECTED · Rep 13/20 · Full ROM ✓</span>
+            </div>
+            <div class="layer-tech">LSTM Sequence Model · Temporal Pattern Analysis</div>
+          </div>
+
+          <!-- Layer 5 -->
+          <div class="layer-viz" id="lv4">
+            <div style="font-family:var(--font-mono);font-size:10px;color:rgba(66,165,245,.7);letter-spacing:2px;margin-bottom:16px;">REPORT GENERATED</div>
+            <div class="report-card">
+              <div class="rc-header">
+                <div class="rc-title">Session Report</div>
+                <div class="rc-badge">AUTO-SENT</div>
+              </div>
+              <div class="rc-row">
+                <span class="rc-key">Patient</span>
+                <span class="rc-val">Ahmad K., 58</span>
+              </div>
+              <div class="rc-row">
+                <span class="rc-key">Exercise</span>
+                <span class="rc-val">Knee Rehab · Day 14</span>
+              </div>
+              <div class="rc-row">
+                <span class="rc-key">Reps Complete</span>
+                <span class="rc-val good">20/20 ✓</span>
+              </div>
+              <div class="rc-row">
+                <span class="rc-key">Avg Form Score</span>
+                <span class="rc-val good">94.2%</span>
+              </div>
+              <div class="rc-row">
+                <span class="rc-key">Flags</span>
+                <span class="rc-val warn">R Elbow drift (×3)</span>
+              </div>
+              <div class="rc-row">
+                <span class="rc-key">Duration</span>
+                <span class="rc-val">18m 24s</span>
+              </div>
+            </div>
+            <div class="layer-tech">Structured JSON Report · Doctor Dashboard Sync</div>
+          </div>
+        </div>
+
+        <div class="pipeline-controls">
+          <button class="pctrl" onclick="setLayer(0)">L1</button>
+          <button class="pctrl" onclick="setLayer(1)">L2</button>
+          <button class="pctrl" onclick="setLayer(2)">L3</button>
+          <button class="pctrl" onclick="setLayer(3)">L4</button>
+          <button class="pctrl" onclick="setLayer(4)">L5</button>
+          <button class="pctrl active-ctrl" id="autoBtn" onclick="toggleAuto()">AUTO ▶</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== DOCTOR DASHBOARD ===== -->
+<section id="doctor">
+  <div class="doctor-inner">
+    <div class="doctor-header reveal">
+      <div class="section-badge">Doctor Panel</div>
+      <h2 class="section-title" style="font-size:clamp(32px,4vw,52px);margin-bottom:16px;">Your Physiotherapist<br>Stays <span class="orange-text">In Control</span></h2>
+      <p class="section-lead" style="max-width:580px;">Kinai doesn't replace the doctor — it extends their reach. Clinicians get a full dashboard to manage patients, prescribe exercises, and monitor recovery remotely.</p>
+    </div>
+
+    <div class="doctor-grid">
+      <div class="doctor-features reveal-l">
+        <div class="doc-feat">
+          <div class="doc-feat-icon">📊</div>
+          <div>
+            <h4>Patient Progress Reports</h4>
+            <p>Detailed weekly session reports for every patient — form scores, rep completion, joint angles, flags, and recovery trajectory charts. All in one dashboard.</p>
+          </div>
+        </div>
+        <div class="doc-feat">
+          <div class="doc-feat-icon">➕</div>
+          <div>
+            <h4>Add, Remove & Modify Exercises</h4>
+            <p>Doctors can update a patient's exercise prescription at any time — adding new exercises, removing completed ones, or swapping exercises based on recovery progress.</p>
+          </div>
+        </div>
+        <div class="doc-feat">
+          <div class="doc-feat-icon">⚡</div>
+          <div>
+            <h4>Set Exercise Intensity Levels</h4>
+            <p>For each exercise, the clinician sets the target reps, sets, hold duration, and intensity. The AI model adjusts its form-checking thresholds accordingly.</p>
+          </div>
+        </div>
+        <div class="doc-feat">
+          <div class="doc-feat-icon">🔔</div>
+          <div>
+            <h4>Automated Alerts & Flags</h4>
+            <p>Kinai automatically flags sessions with poor form scores, missed exercise days, or dangerous movement patterns — alerting the clinician before problems escalate.</p>
+          </div>
+        </div>
+        <div class="doc-feat">
+          <div class="doc-feat-icon">👥</div>
+          <div>
+            <h4>Multi-Patient Management</h4>
+            <p>Manage an entire patient panel from one interface. Sort by recovery stage, compliance rate, or recent alerts. Scale to a clinic-wide deployment.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="reveal-r">
+        <div class="dashboard-mockup">
+          <div class="db-topbar">
+            <div class="db-title">KINAI · DOCTOR DASHBOARD</div>
+            <div class="db-dots">
+              <div class="db-dot" style="background:#FF5F57"></div>
+              <div class="db-dot" style="background:#FEBC2E"></div>
+              <div class="db-dot" style="background:#28C840"></div>
+            </div>
+          </div>
+          <div class="db-body">
+            <div class="db-patient-row">
+              <div class="db-avatar">AK</div>
+              <div class="db-patient-info">
+                <div class="db-patient-name">Ahmad Khan — 58 yrs</div>
+                <div class="db-patient-sub">Post-knee surgery · Day 14 of 42</div>
+              </div>
+              <div class="db-status-badge">ON TRACK</div>
+            </div>
+            <div class="db-metrics">
+              <div class="db-metric">
+                <div class="db-metric-val" style="color:var(--blue)">94%</div>
+                <div class="db-metric-label">Form Score</div>
+              </div>
+              <div class="db-metric">
+                <div class="db-metric-val" style="color:#2E7D32">18/20</div>
+                <div class="db-metric-label">Days Done</div>
+              </div>
+              <div class="db-metric">
+                <div class="db-metric-val" style="color:var(--orange)">3</div>
+                <div class="db-metric-label">Flags</div>
+              </div>
+            </div>
+            <div class="db-exercises">
+              <div class="db-ex-title">Prescribed Exercises</div>
+              <div class="db-ex-row">
+                <div class="db-ex-icon">🦵</div>
+                <div class="db-ex-name">Quad Sets · 3×20 reps</div>
+                <div class="db-ex-intensity low">LOW</div>
+                <div class="db-ex-actions">
+                  <div class="db-ex-btn">✎</div>
+                  <div class="db-ex-btn" style="color:#E53935">✕</div>
+                </div>
+              </div>
+              <div class="db-ex-row">
+                <div class="db-ex-icon">🚶</div>
+                <div class="db-ex-name">Terminal Knee Extension · 3×15</div>
+                <div class="db-ex-intensity med">MED</div>
+                <div class="db-ex-actions">
+                  <div class="db-ex-btn">✎</div>
+                  <div class="db-ex-btn" style="color:#E53935">✕</div>
+                </div>
+              </div>
+              <div class="db-ex-row">
+                <div class="db-ex-icon">🏋️</div>
+                <div class="db-ex-name">Straight Leg Raise · 4×12 reps</div>
+                <div class="db-ex-intensity high">HIGH</div>
+                <div class="db-ex-actions">
+                  <div class="db-ex-btn">✎</div>
+                  <div class="db-ex-btn" style="color:#E53935">✕</div>
+                </div>
+              </div>
+              <div class="db-ex-row" style="border-bottom:none">
+                <div class="db-ex-icon">➕</div>
+                <div style="flex:1;font-size:13px;color:var(--blue);font-weight:600;cursor:pointer">Add New Exercise</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== ACCESSIBILITY ===== -->
+<section id="access">
+  <div class="access-inner">
+    <div class="access-header reveal">
+      <div class="section-badge">Advanced Features</div>
+      <h2 class="section-title" style="font-size:clamp(32px,3.5vw,50px);margin-bottom:16px;">Built for <span class="blue-text">Everyone,</span><br>Everywhere</h2>
+      <p class="section-lead" style="max-width:560px;margin:0 auto;">Kinai is designed to work across all abilities, languages, and living situations — not just for tech-savvy users in cities.</p>
+    </div>
+    <div class="access-grid reveal">
+      <div class="access-card">
+        <span class="access-icon">🌐</span>
+        <div class="access-title">Multilingual Support</div>
+        <div class="access-desc">Voice guidance and interface text available in multiple languages, including Urdu and English — ensuring patients understand every instruction clearly.</div>
+        <div class="access-tag">Multilingual</div>
+      </div>
+      <div class="access-card">
+        <span class="access-icon">📱</span>
+        <div class="access-title">Multi-Device Support</div>
+        <div class="access-desc">Works on any Android or iOS smartphone. No expensive hardware required — if you have a basic modern phone and a camera, Kinai works for you.</div>
+        <div class="access-tag">Android · iOS</div>
+      </div>
+      <div class="access-card">
+        <span class="access-icon">📐</span>
+        <div class="access-title">Multi-Angle Detection</div>
+        <div class="access-desc">Use two phones simultaneously to capture the same patient from front and side angles, or track multiple patients in a group therapy setting — each device tracks independently.</div>
+        <div class="access-tag">Front + Side View</div>
+      </div>
+      <div class="access-card">
+        <span class="access-icon">🔊</span>
+        <div class="access-title">Voice-Guided Feedback</div>
+        <div class="access-desc">Audio instructions guide patients through every exercise — counting reps aloud, warning about incorrect posture, and confirming when a set is complete. No need to watch the screen.</div>
+        <div class="access-tag">Hands-Free</div>
+      </div>
+      <div class="access-card">
+        <span class="access-icon">📈</span>
+        <div class="access-title">Progress Timeline</div>
+        <div class="access-desc">Visual recovery charts show improvement in range-of-motion, form accuracy, and exercise compliance over weeks — motivating patients and validating recovery to doctors.</div>
+        <div class="access-tag">Visual Analytics</div>
+      </div>
+      <div class="access-card">
+        <span class="access-icon">🛡️</span>
+        <div class="access-title">Injury Prevention Alerts</div>
+        <div class="access-desc">Conservative movement thresholds for post-surgical patients halt the session instantly and issue a warning if a dangerous joint angle or movement pattern is detected.</div>
+        <div class="access-tag">Safety-First</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== WHO IT'S FOR ===== -->
+<section id="personas">
+  <div class="personas-inner">
+    <div class="personas-header reveal">
+      <div class="section-badge" style="background:rgba(255,255,255,.06);color:var(--orange);border-color:rgba(232,114,28,.3);">Who It Helps</div>
+      <h2 class="section-title">Designed for Real<br><span style="color:var(--orange)">People</span> in Real Need</h2>
+      <p class="section-lead">Kinai isn't a general fitness app. It's built specifically for people who need medically supervised movement guidance — at home, on their schedule.</p>
+    </div>
+    <div class="personas-grid reveal">
+      <div class="persona-card">
+        <span class="persona-icon">🏥</span>
+        <div class="persona-tag">Primary User</div>
+        <div class="persona-name">Post-Surgery<br>Recovery</div>
+        <div class="persona-desc">Patients discharged after knee replacement, rotator cuff repair, spinal surgery, or ACL reconstruction who must complete weeks of home rehabilitation.</div>
+        <ul class="persona-features">
+          <li>Doctor-prescribed exercise protocols</li>
+          <li>Gentle form thresholds for sensitive joints</li>
+          <li>Session reports sent directly to surgeon</li>
+          <li>Pain-response check-ins after each session</li>
+        </ul>
+      </div>
+      <div class="persona-card">
+        <span class="persona-icon">👴</span>
+        <div class="persona-tag">High Priority</div>
+        <div class="persona-name">Elderly<br>Home Care</div>
+        <div class="persona-desc">Older adults with mobility limitations, arthritis, or fall-risk conditions who need supervised daily movement therapy but cannot travel to a clinic regularly.</div>
+        <ul class="persona-features">
+          <li>Simple, large-button interface</li>
+          <li>Voice guidance in Urdu and English</li>
+          <li>Family member monitoring view</li>
+          <li>Fall-risk posture detection</li>
+        </ul>
+      </div>
+      <div class="persona-card">
+        <span class="persona-icon">⚽</span>
+        <div class="persona-tag">Sports Rehab</div>
+        <div class="persona-name">Sports Injury<br>Rehabilitation</div>
+        <div class="persona-desc">Athletes recovering from sprains, muscle tears, or stress fractures who need intensive, form-precise rehabilitation to return to their sport safely and quickly.</div>
+        <ul class="persona-features">
+          <li>Sport-specific movement protocols</li>
+          <li>Return-to-play readiness scoring</li>
+          <li>High-intensity session support</li>
+          <li>Bilateral symmetry analysis</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== PROCESS ===== -->
+<section id="process">
+  <div class="process-inner">
+    <div class="process-header reveal">
+      <div class="section-badge">Getting Started</div>
+      <h2 class="section-title" style="font-size:clamp(30px,3.5vw,48px);margin-bottom:16px;">From Prescription to<br><span class="orange-text">First Session</span> in Minutes</h2>
+    </div>
+    <div class="process-steps reveal">
+      <div class="proc-step">
+        <div class="proc-num">1</div>
+        <div class="proc-title">Doctor Registers</div>
+        <div class="proc-desc">Your physiotherapist creates a Kinai account and sets up your patient profile with prescribed exercises and intensity settings.</div>
+      </div>
+      <div class="proc-step">
+        <div class="proc-num">2</div>
+        <div class="proc-title">Patient Downloads</div>
+        <div class="proc-desc">You download Kinai on any smartphone. Log in with your patient ID — your exercise plan is already waiting for you.</div>
+      </div>
+      <div class="proc-step">
+        <div class="proc-num">3</div>
+        <div class="proc-title">Start Exercising</div>
+        <div class="proc-desc">Point your camera at yourself, press start. Kinai's AI guides you through each exercise with live feedback and voice instructions.</div>
+      </div>
+      <div class="proc-step">
+        <div class="proc-num">4</div>
+        <div class="proc-title">Doctor Monitors</div>
+        <div class="proc-desc">Your physiotherapist receives a detailed session report automatically. They adjust your plan based on your progress from their dashboard.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== CTA ===== -->
+<section id="cta">
+  <div class="cta-glow"></div>
+  <div class="cta-inner reveal">
+    <div class="section-badge" style="background:rgba(255,255,255,.06);color:var(--orange);border-color:rgba(232,114,28,.3);margin-bottom:28px;">Ready to Transform Recovery</div>
+    <h2 class="cta-title">Recover Smarter.<br><span style="color:var(--orange)">Recover Safer.</span></h2>
+    <p class="cta-sub">Kinai brings clinical-quality physiotherapy supervision to every home — making professional recovery accessible, affordable, and intelligent.</p>
+    <div class="cta-btns">
+      <a href="#solution" class="btn-primary">See the Solution</a>
+      <a href="index.html" class="btn-outline">← Back to Kinai Home</a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <a href="index.html" class="footer-logo">
+      <div class="logo-hex">K</div>
+      <div class="logo-text">KINAI</div>
+    </a>
+    <nav class="footer-nav">
+      <a href="index.html">Home</a>
+      <a href="#problem">The Problem</a>
+      <a href="#ml-pipeline">AI Model</a>
+      <a href="#doctor">Doctor Panel</a>
+      <a href="#personas">Who It Helps</a>
+    </nav>
+  </div>
+  <div class="footer-inner">
+    <div class="footer-copy">© 2025 Kinai · AI-Powered Physiotherapy · Final Year Project</div>
+  </div>
+</footer>
+
+<script>
+// CURSOR
+const cur = document.getElementById('cur');
+const curRing = document.getElementById('curRing');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove', e => { mx=e.clientX; my=e.clientY; cur.style.left=mx+'px'; cur.style.top=my+'px'; });
+(function ar(){ rx+=(mx-rx)*.12; ry+=(my-ry)*.12; curRing.style.left=rx+'px'; curRing.style.top=ry+'px'; requestAnimationFrame(ar); })();
+document.querySelectorAll('a,button,.proc-step,.persona-card,.access-card,.doc-feat').forEach(el => {
+  el.addEventListener('mouseenter', ()=>{ cur.style.width='16px'; cur.style.height='16px'; curRing.style.opacity='.25'; });
+  el.addEventListener('mouseleave', ()=>{ cur.style.width='8px'; cur.style.height='8px'; curRing.style.opacity='.5'; });
+});
+
+// NAV SCROLL - removed (no nav on this page)
+
+// SCROLL REVEAL
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if(e.isIntersecting){ e.target.classList.add('up'); obs.unobserve(e.target); } });
+}, { threshold: 0.1 });
+document.querySelectorAll('.reveal,.reveal-l,.reveal-r').forEach(el => obs.observe(el));
+
+// ML PIPELINE
+let currentLayer = 0;
+let autoPlay = true;
+let autoTimer = null;
+const totalLayers = 5;
+
+function setLayer(n) {
+  const steps = document.querySelectorAll('.pipeline-step');
+  const vizs = document.querySelectorAll('.layer-viz');
+  const ctrls = document.querySelectorAll('.pctrl:not(#autoBtn)');
+
+  steps.forEach((s,i) => {
+    s.classList.remove('active','done');
+    if(i === n) s.classList.add('active');
+    else if(i < n) s.classList.add('done');
+  });
+  vizs.forEach((v,i) => { v.classList.toggle('active', i === n); });
+  ctrls.forEach((c,i) => { c.classList.toggle('active-ctrl', i === n); });
+  currentLayer = n;
+}
+
+function toggleAuto() {
+  autoPlay = !autoPlay;
+  document.getElementById('autoBtn').textContent = autoPlay ? 'AUTO ▶' : 'AUTO ■';
+  document.getElementById('autoBtn').style.background = autoPlay ? '' : 'transparent';
+  if(autoPlay) startAuto(); else clearInterval(autoTimer);
+}
+
+function startAuto() {
+  clearInterval(autoTimer);
+  autoTimer = setInterval(() => {
+    currentLayer = (currentLayer + 1) % totalLayers;
+    setLayer(currentLayer);
+  }, 3000);
+}
+
+// click on steps
+document.querySelectorAll('.pipeline-step').forEach((step, i) => {
+  step.addEventListener('click', () => {
+    autoPlay = false;
+    document.getElementById('autoBtn').textContent = 'AUTO ■';
+    clearInterval(autoTimer);
+    setLayer(i);
+  });
+});
+
+setLayer(0);
+startAuto();
+</script>
+<script src="nav.js"></script>
+</body>
+</html>
