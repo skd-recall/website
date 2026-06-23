@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Gym Trainer</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#08090c; --surf:#0e1118; --brd:#191f2b; --card:#111620;
+  --green:#00e5a0; --blue:#00b4f5; --warn:#ff5e35; --red:#ff3a3a;
+  --text:#dce4ee; --muted:#424f63;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;display:flex;flex-direction:column}
+
+/* ── HEADER ── */
+header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 24px;background:var(--surf);border-bottom:1px solid var(--brd);
+  flex-shrink:0;
+}
+.logo{
+  font-family:'Bebas Neue',sans-serif;font-size:1.45rem;letter-spacing:3px;
+  background:linear-gradient(90deg,var(--green),var(--blue));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.srv-row{display:flex;align-items:center;gap:8px}
+input[type=text]{
+  background:var(--card);border:1px solid var(--brd);color:var(--text);
+  padding:6px 10px;border-radius:6px;font-family:'DM Mono',monospace;font-size:0.73rem;
+  width:230px;outline:none;transition:border-color .2s
+}
+input[type=text]:focus{border-color:var(--green)}
+.badge{
+  display:flex;align-items:center;gap:5px;
+  font-family:'DM Mono',monospace;font-size:0.67rem;color:var(--muted);
+}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--muted);transition:background .3s}
+.dot.ok {background:var(--green);box-shadow:0 0 7px var(--green)}
+.dot.err{background:var(--red)}
+
+/* ── LAYOUT ── */
+main{display:grid;grid-template-columns:1fr 290px;flex:1;min-height:0}
+
+/* ── VIDEO ── */
+.vid-wrap{position:relative;background:#000;overflow:hidden;display:flex;align-items:center;justify-content:center}
+#stream{width:100%;height:100%;object-fit:cover;display:block}
+
+/* Big overlay (idle / calibrating / countdown) */
+#overlay{
+  position:absolute;inset:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:14px;
+  background:rgba(0,0,0,.72);backdrop-filter:blur(4px);
+  transition:opacity .35s;
+}
+#overlay.off{opacity:0;pointer-events:none}
+.ov-icon{font-size:3.5rem;line-height:1}
+.ov-title{
+  font-family:'Bebas Neue',sans-serif;font-size:2.4rem;letter-spacing:4px;
+  color:#fff;text-align:center
+}
+.ov-sub{font-size:.9rem;color:rgba(255,255,255,.6);text-align:center;max-width:300px;line-height:1.55;white-space:pre-line}
+.cd-num{
+  font-family:'Bebas Neue',sans-serif;font-size:9rem;line-height:1;
+  background:linear-gradient(135deg,var(--green),var(--blue));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  animation:pop .3s cubic-bezier(.17,.89,.32,1.27);
+}
+@keyframes pop{from{transform:scale(.35);opacity:0}to{transform:scale(1);opacity:1}}
+
+/* ── SIDE PANEL ── */
+.panel{
+  background:var(--surf);border-left:1px solid var(--brd);
+  overflow-y:auto;display:flex;flex-direction:column
+}
+.panel::-webkit-scrollbar{width:3px}
+.panel::-webkit-scrollbar-thumb{background:var(--brd)}
+.sec{padding:14px 16px;border-bottom:1px solid var(--brd)}
+.sec:last-child{border-bottom:none}
+.sec-lbl{
+  font-family:'DM Mono',monospace;font-size:.59rem;letter-spacing:2.5px;
+  text-transform:uppercase;color:var(--muted);margin-bottom:11px
+}
+
+/* exercise grid */
+.ex-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.ex-btn{
+  background:var(--card);border:1px solid var(--brd);border-radius:8px;
+  padding:9px 5px;cursor:pointer;text-align:center;transition:all .16s;color:var(--text)
+}
+.ex-btn:hover{border-color:var(--blue)}
+.ex-btn.sel{border-color:var(--green);background:rgba(0,229,160,.07)}
+.ex-btn .ei{font-size:1.25rem;display:block}
+.ex-btn .en{font-size:.7rem;font-weight:600;display:block;margin-top:2px}
+
+/* buttons */
+.btn{
+  padding:9px 14px;border-radius:6px;border:none;cursor:pointer;
+  font-family:'DM Sans',sans-serif;font-weight:600;font-size:.8rem;
+  transition:all .16s;white-space:nowrap
+}
+.btn-g{background:var(--green);color:#000}
+.btn-g:hover{background:#00ffb3;transform:translateY(-1px)}
+.btn-r{background:transparent;color:var(--warn);border:1px solid rgba(255,94,53,.4)}
+.btn-r:hover{background:rgba(255,94,53,.1)}
+.btn-full{width:100%;margin-bottom:7px;padding:10px;font-size:.82rem}
+.btn:disabled{opacity:.3;cursor:not-allowed;transform:none!important}
+
+/* stats */
+.stats-g{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:8px}
+.stat{background:var(--card);border:1px solid var(--brd);border-radius:8px;padding:9px 11px}
+.stat-v{font-family:'Bebas Neue',sans-serif;font-size:1.95rem;line-height:1;color:var(--green)}
+.stat-v.b{color:var(--blue)}
+.stat-l{font-family:'DM Mono',monospace;font-size:.58rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-top:1px}
+
+/* form bar */
+.fr{display:flex;justify-content:space-between;font-size:.76rem;margin-bottom:5px}
+.fr span:last-child{font-family:'DM Mono',monospace;font-weight:500}
+.fbar{height:5px;background:var(--brd);border-radius:3px;overflow:hidden;margin-bottom:8px}
+.fbar-f{height:100%;border-radius:3px;width:0;transition:width .4s,background .3s;background:linear-gradient(90deg,var(--blue),var(--green))}
+
+/* corrections */
+#corrList{display:flex;flex-direction:column;gap:4px}
+.corr{
+  display:flex;align-items:flex-start;gap:6px;padding:6px 8px;
+  background:rgba(255,94,53,.07);border:1px solid rgba(255,94,53,.22);
+  border-radius:5px;font-size:.76rem;color:#ffb09a;line-height:1.4;
+  animation:sli .18s ease
+}
+@keyframes sli{from{opacity:0;transform:translateX(5px)}to{opacity:1;transform:none}}
+.corr-ok{color:var(--green);font-size:.76rem}
+
+/* angles */
+#angleList{display:flex;flex-direction:column;gap:3px}
+.ang{display:flex;justify-content:space-between;padding:4px 7px;background:var(--card);border:1px solid var(--brd);border-radius:4px}
+.ang-n{font-family:'DM Mono',monospace;font-size:.66rem;color:var(--muted);text-transform:capitalize}
+.ang-v{font-family:'DM Mono',monospace;font-size:.75rem;color:var(--blue);font-weight:500}
+
+.pill{
+  background:var(--card);border:1px solid var(--brd);border-radius:5px;
+  padding:7px 10px;font-size:.76rem;color:var(--muted);text-align:center;
+  font-style:italic;margin-top:4px
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">AI GYM TRAINER</div>
+  <div class="srv-row">
+    <input type="text" id="baseUrl" value="http://localhost:5000" placeholder="http://localhost:5000">
+    <button class="btn btn-g" id="btnConn" onclick="tryConnect()">Connect</button>
+    <div class="badge"><div class="dot" id="dot"></div><span id="dotLbl">OFFLINE</span></div>
+  </div>
+</header>
+
+<main>
+  <!-- VIDEO -->
+  <div class="vid-wrap">
+    <!-- MJPEG stream — just a plain <img> tag, browser handles everything -->
+    <img id="stream" alt="video stream" style="display:none">
+
+    <div id="overlay">
+      <div class="ov-icon" id="ovIcon">🏋️</div>
+      <div class="ov-title" id="ovTitle">AI GYM TRAINER</div>
+      <div class="ov-sub"  id="ovSub">Enter your server address above and click Connect, then choose an exercise and press Start.</div>
+    </div>
+  </div>
+
+  <!-- PANEL -->
+  <div class="panel">
+
+    <!-- Exercises -->
+    <div class="sec">
+      <div class="sec-lbl">Exercise</div>
+      <div class="ex-grid" id="exGrid">
+        <div class="ex-btn" id="ex-squat"          onclick="pick('squat')">          <span class="ei">🏋️</span><span class="en">Squat</span></div>
+        <div class="ex-btn" id="ex-pushup"         onclick="pick('pushup')">         <span class="ei">💪</span><span class="en">Push-up</span></div>
+        <div class="ex-btn" id="ex-plank"          onclick="pick('plank')">          <span class="ei">🧘</span><span class="en">Plank</span></div>
+        <div class="ex-btn" id="ex-shoulder_press" onclick="pick('shoulder_press')"> <span class="ei">🏅</span><span class="en">Shoulder Press</span></div>
+        <div class="ex-btn" id="ex-bicep_curl"     onclick="pick('bicep_curl')">     <span class="ei">🦾</span><span class="en">Bicep Curl</span></div>
+        <div class="ex-btn" id="ex-lunge"          onclick="pick('lunge')">          <span class="ei">🚶</span><span class="en">Lunge</span></div>
+      </div>
+    </div>
+
+    <!-- Session -->
+    <div class="sec">
+      <div class="sec-lbl">Session</div>
+      <button class="btn btn-g btn-full" id="btnStart" onclick="startSession()" disabled>▶  Start Session</button>
+      <button class="btn btn-r btn-full" id="btnStop"  onclick="stopSession()"  disabled>■  Stop Session</button>
+      <div class="pill" id="pill">No session active</div>
+    </div>
+
+    <!-- Live stats -->
+    <div class="sec">
+      <div class="sec-lbl">Live Stats</div>
+      <div class="fr"><span>Form Score</span><span id="scoreNum">—</span></div>
+      <div class="fbar"><div class="fbar-f" id="fbarF"></div></div>
+      <div class="stats-g">
+        <div class="stat"><div class="stat-v"   id="sReps">0</div><div class="stat-l">Reps</div></div>
+        <div class="stat"><div class="stat-v b" id="sPhase">—</div><div class="stat-l">Phase</div></div>
+        <div class="stat"><div class="stat-v b" id="sState">—</div><div class="stat-l">State</div></div>
+        <div class="stat"><div class="stat-v"   id="sFps">—</div>  <div class="stat-l">Srv FPS</div></div>
+      </div>
+    </div>
+
+    <!-- Corrections -->
+    <div class="sec">
+      <div class="sec-lbl">Form Feedback</div>
+      <div id="corrList"><div class="corr-ok">✓ &nbsp;Waiting for session…</div></div>
+    </div>
+
+    <!-- Angles -->
+    <div class="sec">
+      <div class="sec-lbl">Joint Angles</div>
+      <div id="angleList"><div style="color:var(--muted);font-size:.74rem">No data</div></div>
+    </div>
+
+  </div>
+</main>
+
+<script>
+// ════════════════════════════════════════
+//  CONFIG & STATE
+// ════════════════════════════════════════
+let BASE        = 'http://localhost:5000';
+let connected   = false;
+let selected    = null;
+let sessionOn   = false;
+let pollTimer   = null;
+let lastCd      = -1;    // track countdown number to re-trigger animation
+
+// ════════════════════════════════════════
+//  CONNECT — just check /api/exercises to confirm server is up
+// ════════════════════════════════════════
+async function tryConnect() {
+  BASE = document.getElementById('baseUrl').value.replace(/\/+$/,'');
+  setDot('','CHECKING…');
+  try {
+    const r = await fetch(BASE + '/api/exercises', {signal: AbortSignal.timeout(3000)});
+    if (!r.ok) throw new Error('bad status');
+    connected = true;
+    setDot('ok','CONNECTED');
+
+    // Point the stream img at the server
+    const img = document.getElementById('stream');
+    img.src   = BASE + '/video';
+    img.style.display = 'block';
+    img.onerror = () => { setDot('err','STREAM ERROR'); };
+
+    document.getElementById('btnConn').disabled = true;
+    updateStartBtn();
+    setOverlay('🎯','CHOOSE EXERCISE','Pick an exercise from the panel and press Start Session.');
+    setPill('Connected — choose exercise');
+  } catch(e) {
+    setDot('err','FAILED');
+    setOverlay('⚠️','CANNOT CONNECT','Make sure stream_server.py is running:\npython stream_server.py');
+  }
+}
+
+// ════════════════════════════════════════
+//  EXERCISE PICK
+// ════════════════════════════════════════
+function pick(id) {
+  selected = id;
+  document.querySelectorAll('.ex-btn').forEach(b => b.classList.remove('sel'));
+  document.getElementById('ex-' + id)?.classList.add('sel');
+  updateStartBtn();
+  if (connected && !sessionOn)
+    setOverlay('🎯','READY TO START',`Exercise: ${id.replace(/_/g,' ').toUpperCase()}\n\nPress Start Session below.`);
+}
+
+// ════════════════════════════════════════
+//  SESSION START / STOP
+// ════════════════════════════════════════
+async function startSession() {
+  if (!connected || !selected) return;
+  try {
+    const r = await fetch(BASE + '/api/start', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({exercise: selected})
+    });
+    const d = await r.json();
+    if (!d.ok) { setPill('Error: ' + d.error); return; }
+
+    sessionOn = true;
+    document.getElementById('btnStart').disabled = true;
+    document.getElementById('btnStop').disabled  = false;
+    lastCd = -1;
+    startPoll();
+    setPill('Session started');
+  } catch(e) { setPill('Start failed: ' + e.message); }
+}
+
+async function stopSession() {
+  stopPoll();
+  try {
+    const r = await fetch(BASE + '/api/stop', {method:'POST'});
+    const d = await r.json();
+    setOverlay('🏆','SESSION COMPLETE',
+      `${d.total_reps ?? 0} reps completed\nAvg form score: ${d.avg_form ?? 0}%`);
+  } catch(e) {}
+  sessionOn = false;
+  document.getElementById('btnStart').disabled = false;
+  document.getElementById('btnStop').disabled  = true;
+  setPill('Session ended');
+  resetStats();
+}
+
+// ════════════════════════════════════════
+//  STATS POLL  (every 200 ms is plenty — the video runs independently)
+// ════════════════════════════════════════
+function startPoll() {
+  stopPoll();
+  pollTimer = setInterval(pollStats, 200);
+}
+function stopPoll() { if(pollTimer){ clearInterval(pollTimer); pollTimer=null; } }
+
+async function pollStats() {
+  if (!connected) return;
+  try {
+    const r = await fetch(BASE + '/api/stats', {signal: AbortSignal.timeout(1500)});
+    const d = await r.json();
+    applyStats(d);
+  } catch(e) { /* server busy, skip */ }
+}
+
+function applyStats(d) {
+  const phase = d.phase;
+
+  // ── Overlay logic ──────────────────────────────────────────
+  if (phase === 'calibrating') {
+    showOverlay();
+    setOverlay('📐','CALIBRATING…',
+      'Stand upright — arms at sides\nFull body must be visible\nHold still…');
+
+  } else if (phase === 'countdown') {
+    const n = d.countdown;
+    if (n !== lastCd) {
+      lastCd = n;
+      showCountdown(n > 0 ? n : 'GO!');
+    }
+
+  } else if (phase === 'detecting') {
+    hideOverlay();
+    lastCd = -1;
+
+  } else if (phase === 'idle') {
+    showOverlay();
+    setOverlay('🏁','DONE','Session complete.\nPress Start Session to go again.');
+    stopPoll();
+    sessionOn = false;
+    document.getElementById('btnStart').disabled = false;
+    document.getElementById('btnStop').disabled  = true;
+  }
+
+  // ── Side panel stats ───────────────────────────────────────
+  setText('sReps',  d.rep_count ?? 0);
+  setText('sPhase', (d.exercise_phase||'—').toUpperCase());
+  setText('sState', (d.exercise_state||'—').toUpperCase());
+
+  if (d.form_score !== undefined) setFormScore(d.form_score);
+  setCorrections(d.corrections || []);
+  setAngles(d.angles || {});
+  setPill('Status: ' + phase);
+}
+
+// ════════════════════════════════════════
+//  UI HELPERS
+// ════════════════════════════════════════
+function setDot(cls,lbl){
+  document.getElementById('dot').className = 'dot ' + cls;
+  document.getElementById('dotLbl').textContent = lbl;
+}
+function setOverlay(icon,title,sub){
+  document.getElementById('ovIcon').textContent  = icon;
+  document.getElementById('ovTitle').textContent = title;
+  document.getElementById('ovSub').textContent   = sub;
+}
+function showOverlay(){ document.getElementById('overlay').classList.remove('off'); }
+function hideOverlay(){ document.getElementById('overlay').classList.add('off'); }
+
+function showCountdown(n){
+  showOverlay();
+  document.getElementById('ovIcon').innerHTML =
+    `<div class="cd-num" id="cdN">${n}</div>`;
+  document.getElementById('ovTitle').textContent = n==='GO!' ? 'GO!' : 'GET READY';
+  document.getElementById('ovSub').textContent   = n==='GO!' ? 'Exercise starting!' : 'Starting in…';
+}
+
+function setPill(m){ document.getElementById('pill').textContent = m; }
+function setText(id,v){ document.getElementById(id).textContent = v; }
+
+function setFormScore(v){
+  const pct = Math.max(0,Math.min(100,v));
+  document.getElementById('scoreNum').textContent = v>0 ? pct.toFixed(0)+'%' : '—';
+  const f = document.getElementById('fbarF');
+  f.style.width = pct+'%';
+  f.style.background = pct>=80 ? 'linear-gradient(90deg,#00b4f5,#00e5a0)'
+    : pct>=55 ? 'linear-gradient(90deg,#f0c040,#ff9a00)'
+    : 'linear-gradient(90deg,#ff3a3a,#ff5e35)';
+}
+
+function setCorrections(arr){
+  const el = document.getElementById('corrList');
+  if(!arr||!arr.length){
+    el.innerHTML = '<div class="corr-ok">✓ &nbsp;Form looks good</div>';
+    return;
+  }
+  el.innerHTML = arr.map(c=>
+    `<div class="corr">⚠ &nbsp;${esc(c)}</div>`
+  ).join('');
+}
+
+function setAngles(obj){
+  const el = document.getElementById('angleList');
+  const keys = Object.keys(obj);
+  if(!keys.length){ el.innerHTML='<div style="color:var(--muted);font-size:.74rem">No data</div>'; return; }
+  el.innerHTML = keys.map(k=>{
+    const v = obj[k];
+    const deg = typeof v==='number' ? v.toFixed(1)+'°' : String(v);
+    return `<div class="ang">
+      <span class="ang-n">${esc(k.replace(/_/g,' '))}</span>
+      <span class="ang-v">${deg}</span>
+    </div>`;
+  }).join('');
+}
+
+function resetStats(){
+  setFormScore(0);
+  setText('sReps','0'); setText('sPhase','—'); setText('sState','—');
+  document.getElementById('corrList').innerHTML = '<div class="corr-ok">✓ &nbsp;Waiting…</div>';
+  document.getElementById('angleList').innerHTML = '<div style="color:var(--muted);font-size:.74rem">No data</div>';
+}
+
+function updateStartBtn(){
+  document.getElementById('btnStart').disabled = !(connected && selected && !sessionOn);
+}
+
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+</script>
+</body>
+</html>
